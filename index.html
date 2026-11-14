@@ -912,7 +912,7 @@ exports.init = init;
 
         <script>
         const URL_APPS_SCRIPT = "https://script.google.com/macros/s/AKfycbxK43vUgWBw9cyKdkxwsaYBvbEh7BDFjnVza8gnzT0f_sNBGNN8ISJtcWnSrV1Y3g/exec";
-        const NOMBRE_MODULO = "01_01"; // Debe coincidir con el nombre de la pestaña en Google Sheets
+        const NOMBRE_MODULO = "01_01";
 
         async function solicitarPin() {
             const email = document.getElementById("input-email").value.trim();
@@ -926,6 +926,7 @@ exports.init = init;
             try {
             const res = await fetch(URL_APPS_SCRIPT, {
                 method: "POST",
+                headers: { "Content-Type": "text/plain;charset=utf-8" },
                 body: JSON.stringify({ accion: "pedir_pin", email: email, modulo: NOMBRE_MODULO })
             });
             const data = await res.json();
@@ -935,7 +936,7 @@ exports.init = init;
                 document.getElementById("paso-pin").style.display = "block";
             }
             } catch (e) {
-            msg.textContent = "Error de conexión. Inténtalo de nuevo.";
+            msg.textContent = "Error de conexión: " + e.message;
             }
             btn.disabled = false;
         }
@@ -953,24 +954,23 @@ exports.init = init;
             try {
             const res = await fetch(URL_APPS_SCRIPT, {
                 method: "POST",
+                headers: { "Content-Type": "text/plain;charset=utf-8" },
                 body: JSON.stringify({ accion: "verificar_pin", email: email, pin: pin, modulo: NOMBRE_MODULO })
             });
             const data = await res.json();
             if (data.ok && data.clave) {
                 msg.textContent = "¡Acceso concedido! Desbloqueando...";
-                // Rellena y envía automáticamente el formulario oculto de StatiCrypt
                 const inputPass = document.querySelector('input[type="password"]');
                 const formPass = inputPass ? inputPass.closest('form') : null;
                 if (inputPass && formPass) {
                 inputPass.value = data.clave;
-                document.getElementById("capa-acceso-docente").remove();
                 formPass.dispatchEvent(new Event('submit', { cancelable: true, bubbles: true }));
                 }
             } else {
                 msg.textContent = data.mensaje || "Código incorrecto.";
             }
             } catch (e) {
-            msg.textContent = "Error al verificar el código.";
+            msg.textContent = "Error al verificar: " + e.message;
             }
             btn.disabled = false;
         }
