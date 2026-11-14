@@ -964,6 +964,7 @@ exports.init = init;
                 const formPass = inputPass ? inputPass.closest('form') : null;
                 if (inputPass && formPass) {
                 inputPass.value = data.clave;
+				document.getElementById("staticrypt-remember").checked = true;
                 formPass.dispatchEvent(new Event('submit', { cancelable: true, bubbles: true }));
                 }
             } else {
